@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/scripts/angular.min.js"></script>
+    <script>
+        var messageList = [{ name : "temp", msg : "tete"}];
+//        var event = new CustomEvent('angMsg', { detail: 'none'});
+//        window.addEventListener('angMsg');
+//        var socket;
+
+        
+//        function init () {
+//            var connect = document.querySelector("#connect");
+//            connect.addEventListener('click', connectSocket);
+//        };
+//        function connectSocket () {
+//            var chat = document.querySelector("#chat");
+//            var input = document.querySelector("#message");
+//            socket = io.connect();
+            //listener for connect event
+//            socket.on('connect', function() {
+//            console.log('connecting');
+//
+//            var user = document.querySelector("#username").value;
+////            if(!user) {
+////            user = 'unknown';
+////            }
+////            socket.emit('join', { name: user });
+////            });
+//            //listener for msg event
+////            socket.on('msg', function(data) {
+//////                var node = document.createElement("LI");
+//////                var textNode = document.createTextNode(data);
+//////                node.appendChild(textNode);
+//////                document.getElementById("chat").innerHTML += data.msg;
+////                messageList.push({ name : data.name, msg : data.msg });
+////                console.log(messageList);
+//////                window.dispatchEvent(event);
+////                $scope.updateChat();
+////            });
+//            
+//         
+//            
+//            var send = document.getElementById("send");
+//            send.addEventListener("click", function () { 
+//                socket.emit("msgToServer", {
+//                    msg : input.value 
+//                }
+//               );
+//            });
+//        };
+//        var event = document.createEvent('angMsg');
+        
+        var ang = angular.module("myChat", []);
+       
+        
+        ang.controller('chatCtrl', function($scope, socket) {
+//            angular.element($window).on("angMsg", updateChat);
+//            $scope.messages = messageList; 
+            $scope.curMessage;
+            $scope.curUser;
+            
+            $scope.updateChat = function () {
+                $scope.messages = messageList;
+                console.log("stuff");
+            };
+            
+            
+            $scope.connect = function () {
+//                socket = io.connect();
+                socket.emit('connection');
+                
+                socket.emit('join', { name: $scope.curUser });
+                
+                
+//            var send = document.getElementById("send");
+//            send.addEventListener("click", function () { 
+//                socket.emit("msgToServer", {
+//                    msg : input.value 
+//                }
+//               );
+//            });
+                $scope.send = function () {
+                    var myMessage = $scope.curMessage;
+                     socket.emit("msgToServer", {
+                        msg : myMessage 
+                    });
+                };
+                console.log('connecting');
+                
+
+//            var user = document.querySelector("#username").value;
+//            if(!user) {
+//            user = 'unknown';
+//            }
+//            socket.emit('join', { name: user });
+//            });
+            //listener for msg event
+//            socket.on('msg', function(data) {
+////                var node = document.createElement("LI");
+////                var textNode = document.createTextNode(data);
+////                node.appendChild(textNode);
+////                document.getElementById("chat").innerHTML += data.msg;
+//                messageList.push({ name : data.name, msg : data.msg });
+//                console.log(messageList);
+////                window.dispatchEvent(event);
+//                $scope.updateChat();
+//            });
+            
+             socket.on('msg', function(data) {
+//                var node = document.createElement("LI");
+//                var textNode = document.createTextNode(data);
+//                node.appendChild(textNode);
+//                document.getElementById("chat").innerHTML += data.msg;
+                messageList.push({ name : data.name, msg : data.msg });
+                console.log(messageList);
+//                window.dispatchEvent(event);
+                $scope.updateChat();
+            });
+         
+            
+            };
+            
+            
+            
+        });
+        
+        ang.factory('socket', function($rootScope) {
+//            var socket = io.connect(); // Connection to the server socket
+            var socket = io.connect();
+            
+            return {
+                on: function(eventName, callback) { // Return callback to the actual function to manipulate it.
+                    socket.on(eventName, function() { 
+                        var args = arguments;   
+                        $rootScope.$apply(function() {
+                            callback.apply(socket, args);
+                        });
+                    });
+                },
+                emit : function (eventName, data) {
+                    socket.emit(eventName, data);
+                }
+            };
+        });
+        
+//        window.onload = init;
+//        ang.directive('angDirective', function($window, $scope) {
+//            angular.element($window).on('angMsg', updateChat);
+//            $scope.messages = messageList;
+//            function updateChat() {
+//                $scope.messages = messageList;
+//            }
+//            
+//        });
+    </script>
+    <script src="/scripts/test.js"></script>
+    <!-- import the websocket client library. You can code websockets from scratch
+         but we will just import a library. In this case we are using socket.io which is 
+         one of the most popular and feature rich websocket libraries.
+         
+         You can point the src for the script to any host online, but
+         by default the socket.io nodejs library will host the client library
+         online at your node.js address under /socket.io/socket.io.js 
+         You can disable that on the server if desired
+    -->
+	<style>
+		textarea {
+			display: block;
+			background-color: #EEEEEE;
+		}
+	</style>
+</head>
+<body>
+	<div ng-app="myChat" ng-controller="chatCtrl">
+        <label for="user">Username:</label>
+        <input id="username" name="user" type="text" ng-model="curUser"/>
+        <input id="connect" type='button' value='connect' ng-click="connect()"/>
+        </br>
+        <label for="message">Message:</label>
+        <input id="message" name="message" type="text" ng-model="curMessage"/>
+        <input id="send" type="button" value="send"  ng-click="send()" />
+            <div ng-repeat="x in messages">
+                {{ x.name + ": " + x.msg }}
+            </div>
+    </div>
+    
+<!--	<textarea id="chat" rows="20" cols="40" readonly> </textarea>-->
+</body>
+</html>
