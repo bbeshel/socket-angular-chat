@@ -60,6 +60,7 @@ var score = 0;
 
 var onJoined = function (socket) {
     socket.on('join', function (data) {
+    users[data.name] = data.name;
     var joinMsg = {
      name: 'server',
      msg: 'There are ' + Object.keys(users).length + ' users online'
@@ -92,7 +93,17 @@ var onMsg = function (socket) {
 };
 
 var onDisconnect = function (socket) {
-    
+    socket.on('disconnect', function(data) {
+       console.log(socket.name); 
+        if (users.hasOwnProperty(socket.name)) {
+            delete users[socket.name];
+            socket.broadcast.to('room1').emit('msg', {
+                name: 'server',
+                msg: socket.name + " has disconnected."
+            });
+            delete socket;
+        }
+    });
 };
 
 
