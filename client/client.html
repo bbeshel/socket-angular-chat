@@ -180,13 +180,16 @@
         <input id="connect" type='button' value='connect' ng-click="connect()"/>
         </br>
         <label for="message">Message:</label>
-        <input id="message" name="message" type="text" ng-model="curMessage"/>
+        <input id="message" name="message" type="text" ng-keypress="$event.keyCode == 13 && send()" ng-model="curMessage"/>
         <input id="send" type="button" value="send"  ng-click="send()" />
             <div ng-repeat="x in messages">
                 <div ng-if="x.name == 'server'" style="color:red;">
                     {{ x.msg }}
                 </div>
-                <div ng-if="x.name != 'server'">
+                <div ng-if="x.name == curUser" style="text-align:right; color:blue">
+                    {{ x.msg }}
+                </div>
+                <div ng-if="x.name != 'server' && x.name != curUser">
                     {{ x.name + ": " + x.msg }}
                 </div>
             </div>
