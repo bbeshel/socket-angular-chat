@@ -4,7 +4,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="/scripts/angular.min.js"></script>
     <script>
-        var messageList = [{ name : "temp", msg : "tete"}];
+        var messageList = [{ name : "Greeting", msg : "This is a work in progress angular/socket chat project"}];
 //        var event = new CustomEvent('angMsg', { detail: 'none'});
 //        window.addEventListener('angMsg');
 //        var socket;
@@ -86,6 +86,7 @@
                      socket.emit("msgToServer", {
                         msg : myMessage 
                     });
+                    $scope.curMessage = "";
                 };
                 console.log('connecting');
                 
@@ -182,7 +183,12 @@
         <input id="message" name="message" type="text" ng-model="curMessage"/>
         <input id="send" type="button" value="send"  ng-click="send()" />
             <div ng-repeat="x in messages">
-                {{ x.name + ": " + x.msg }}
+                <div ng-if="x.name == 'server'" style="color:red;">
+                    {{ x.msg }}
+                </div>
+                <div ng-if="x.name != 'server'">
+                    {{ x.name + ": " + x.msg }}
+                </div>
             </div>
     </div>
     
