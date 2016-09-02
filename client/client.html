@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/scripts/angular.min.js"></script>
-    <script>
+    <script src="/socket.io/socket.io.js" type="text/javascript"></script>
+    <script src="/scripts/angular.min.js" type="text/javascript"></script>
+    <script src="/scripts/jquery-3.1.0.min.js" type="text/javascript"></script>
+    <link href="/scripts/bootstrap.min.css" rel="stylesheet">
+    <link href="/scripts/styles.css" rel="stylesheet">
+    <script type="text/javascript">
         var messageList = [{ name : "Greeting", msg : "This is a work in progress angular/socket chat project"}];
 //        var event = new CustomEvent('angMsg', { detail: 'none'});
 //        window.addEventListener('angMsg');
@@ -54,12 +57,39 @@
         
         var ang = angular.module("myChat", []);
        
+//        
+//        ang.directive("parsedText", function () {
+//            return {
+//                restrict: 'EA',
+//                scope : true,
+//                controller : function ($scope) {
+//                    var text = $scope.messages[$scope.messages.length - 1].msg;
+//                    if (text.search(".jpg") > -1 || text.search(".png") > -1 || text.search(".jpeg")) {
+//                        return {
+//                            template : ' <img src = "' + text + '" /> '
+//                        };
+//                    } else {
+//                        return {
+//                            template : '{{ x.msg }}'
+//                        };
+//                    }
+//                },
+//            };
+//        });
         
         ang.controller('chatCtrl', function($scope, socket) {
 //            angular.element($window).on("angMsg", updateChat);
 //            $scope.messages = messageList; 
             $scope.curMessage;
             $scope.curUser;
+            
+            $scope.parseText = function (text) {
+                var lowText = text.toLowerCase();
+                if (lowText.search(".jpg") > -1 || lowText.search(".png") > -1 || lowText.search(".jpeg") > -1) {
+                    return true;
+                }
+                return false;
+            };
             
             $scope.updateChat = function () {
                 $scope.messages = messageList;
@@ -156,7 +186,7 @@
 //            
 //        });
     </script>
-    <script src="/scripts/test.js"></script>
+<!--    <script src="/scripts/test.js"></script>-->
     <!-- import the websocket client library. You can code websockets from scratch
          but we will just import a library. In this case we are using socket.io which is 
          one of the most popular and feature rich websocket libraries.
@@ -182,19 +212,35 @@
         <label for="message">Message:</label>
         <input id="message" name="message" type="text" ng-keypress="$event.keyCode == 13 && send()" ng-model="curMessage"/>
         <input id="send" type="button" value="send"  ng-click="send()" />
-            <div ng-repeat="x in messages">
-                <div ng-if="x.name == 'server'" style="color:red;">
+        <div ng-repeat="x in messages">
+            <div class="row">
+                <!-- Server text -->
+                <div class="col-sm-12 bg-primary text-left" ng-if="x.name == 'server'">
                     {{ x.msg }}
                 </div>
-                <div ng-if="x.name == curUser" style="text-align:right; color:blue">
-                    {{ x.msg }}
+                <!-- User text -->
+                <div class="messagebox col-sm-12 text-muted" ng-if="x.name == curUser" >
+                    <img ng-if="parseText(x.msg)" src="{{ x.msg }}" />
+                    <div ng-if="!parseText(x.msg)">
+                        {{ x.msg }}
+                    </div>
                 </div>
-                <div ng-if="x.name != 'server' && x.name != curUser">
-                    {{ x.name + ": " + x.msg }}
+                <!-- Responder text -->
+                <div class="text-primary text-left" ng-if="x.name != 'server' && x.name != curUser">
+                    <div class="bg-success col-sm-2">
+                        {{ x.name + ": " }}
+                    </div>
+                    <div class="messagebox col-sm-10">
+                        <img ng-if="parseText(x.msg)" src="{{ x.msg }}" />
+                        <div ng-if="!parseText(x.msg)">
+                            {{ x.msg }}
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
     </div>
-    
+    <script src="/scripts/bootstrap.min.js" type="text/javascript"></script>
 <!--	<textarea id="chat" rows="20" cols="40" readonly> </textarea>-->
 </body>
 </html>
