@@ -83,14 +83,47 @@
             $scope.curMessage;
             $scope.curUser;
             
-            $scope.parseText = function (text) {
-                var lowText = text.toLowerCase();
-                if (lowText.search(".jpg") > -1 || lowText.search(".png") > -1 || lowText.search(".jpeg") > -1) {
-                    return true;
+            $scope.isImage = function (text) {
+//                var lowText = text.toLowerCase();
+//                if (lowText.search(".jpg") > -1 || lowText.search(".png") > -1 || lowText.search(".jpeg") > -1 || lowText.search(".gif") > -1) {
+//                    return true;
+//                }
+//                return false;
+                var split = text.split(" ");
+                var imgRx = /\.(jpg|jpeg|png|gif)+/i;
+                console.log(split);
+                for (var i = 0; i < split.length; i++) {
+                    if (split[i].match(imgRx)) {
+                        return split[i];
+                    }
                 }
-                return false;
+                return "";
             };
             
+            $scope.isVideo = function (text) {
+                var linkHelper = function (url) {
+                    var vidId;
+                    if (url.search("\\?v\\=") > -1) {
+                        vidId = url.substring(url.search("\\?v\\=") + 3);
+                    } else {
+                        vidId = url.substring(url.search("be\/") + 3);
+                    }
+                    console.log(vidId);
+                    return vidId;
+                };
+                
+                var split = text.split(" ");
+                for (var i = 0; i < split.length; i++) {
+                    if (split[i].search("https://youtu.be/") > -1 || split[i].search("https://www.youtube.com/watch") > -1) {
+                        return "https://www.youtube.com/embed/" + linkHelper(split[i]);
+                    }
+                }
+                return "";
+            };
+            
+            $scope.parseVideo = function (text) {
+                
+            };
             $scope.updateChat = function () {
                 $scope.messages = messageList;
                 console.log("stuff");
@@ -112,9 +145,13 @@
 //               );
 //            });
                 $scope.send = function () {
-                    var myMessage = $scope.curMessage;
+                    var myVideo, myImage, myMessage = $scope.curMessage;
+                    var myImage = $scope.isImage(myMessage);
+                    var myVideo = $scope.isVideo(myMessage);
                      socket.emit("msgToServer", {
-                        msg : myMessage 
+                        msg : myMessage,
+                        img : myImage,
+                        vid : myVideo
                     });
                     $scope.curMessage = "";
                 };
@@ -144,7 +181,7 @@
 //                var textNode = document.createTextNode(data);
 //                node.appendChild(textNode);
 //                document.getElementById("chat").innerHTML += data.msg;
-                messageList.push({ name : data.name, msg : data.msg });
+                messageList.push({ name : data.name, msg : data.msg, img: data.img, vid: data.vid });
                 console.log(messageList);
 //                window.dispatchEvent(event);
                 $scope.updateChat();
@@ -220,10 +257,11 @@
                 </div>
                 <!-- User text -->
                 <div class="messagebox col-sm-12 text-muted" ng-if="x.name == curUser" >
-                    <img ng-if="parseText(x.msg)" src="{{ x.msg }}" />
-                    <div ng-if="!parseText(x.msg)">
+                    <div>
                         {{ x.msg }}
                     </div>
+                    <img ng-if="x.img.length > 0" src="{{ x.img }}" />
+                    <iframe ng-if="x.vid.length > 0" src="{{ x.vid }}"></iframe>
                 </div>
                 <!-- Responder text -->
                 <div class="text-primary text-left" ng-if="x.name != 'server' && x.name != curUser">
@@ -231,10 +269,10 @@
                         {{ x.name + ": " }}
                     </div>
                     <div class="messagebox col-sm-10">
-                        <img ng-if="parseText(x.msg)" src="{{ x.msg }}" />
-                        <div ng-if="!parseText(x.msg)">
+                        <div>
                             {{ x.msg }}
                         </div>
+                        <img class="img-rounded" ng-if="x.img.length > 0" src="{{ x.img }}" />
                     </div>
                 </div>
             </div>

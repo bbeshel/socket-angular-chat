@@ -87,7 +87,9 @@ var onMsg = function (socket) {
         console.log("Message receieved: " + data.msg);
         io.sockets.in('room1').emit('msg', {
             name: socket.name,
-            msg: data.msg
+            msg: data.msg,
+            img: data.img,
+            vid: data.vid
         });
     });
 };
