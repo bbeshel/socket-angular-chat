@@ -241,7 +241,7 @@
 	</style>
 </head>
 <body>
-	<div ng-app="myChat" ng-controller="chatCtrl">
+	<div id="chatWindow" ng-app="myChat" ng-controller="chatCtrl">
         <label for="user">Username:</label>
         <input id="username" name="user" type="text" ng-model="curUser"/>
         <input id="connect" type='button' value='connect' ng-click="connect()"/>
@@ -260,7 +260,10 @@
                     <div>
                         {{ x.msg }}
                     </div>
-                    <img ng-if="x.img.length > 0" src="{{ x.img }}" />
+                    <div ng-if="x.img.length > 0">
+                        <button data-toggle="collapse" data-target="{{ '#' + $index + 'image' }}">Show Image</button>
+                        <img id="{{ $index + 'image' }}" class="img-rounded collapse" ng-if="x.img.length > 0" src="{{ x.img }}" />
+                    </div>
                     <iframe ng-if="x.vid.length > 0" src="{{ x.vid }}"></iframe>
                 </div>
                 <!-- Responder text -->
@@ -272,7 +275,11 @@
                         <div>
                             {{ x.msg }}
                         </div>
-                        <img class="img-rounded" ng-if="x.img.length > 0" src="{{ x.img }}" />
+                        <div ng-if="x.img.length > 0">
+                            <button data-toggle="collapse" data-target="{{ '#' + $index + 'image' }}">Show Image</button>
+                            <img id="{{ $index + 'image' }}" class="img-rounded collapse" ng-if="x.img.length > 0" src="{{ x.img }}" />
+                        </div>
+                        <iframe ng-if="x.vid.length > 0" src="{{ x.vid }}"></iframe>
                     </div>
                 </div>
             </div>
